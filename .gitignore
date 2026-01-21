@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+.pytest_cache/
+
+# Node / Next
+node_modules/
+.next/
+out/
+.env.local
+
+# Media uploads
+backend/media/
+media/
+
+# OS
+.DS_Store
