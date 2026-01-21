@@ -2,31 +2,46 @@ import uuid
 from pathlib import Path
 from fastapi import UploadFile
 
-ALLOWED_IMAGE_TYPE = {
+ALLOWED_IMAGE_TYPES = {
     "image/jpeg": ".jpg",
     "image/png": ".png",
     "image/webp": ".webp",
 }
 
-MAX_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MB
+MAX_IMAGE_BYTES = 2 * 1024 * 1024  # 2MB
+MEDIA_ROOT = Path("media") / "employees"
 
-def save_employee_photo(file: UploadFile) -> str:
-    if file.content_type not in ALLOWED_IMAGE_TYPE:
-        raise ValueError("Unsupported image type (only JPEG, PNG, WEBP allowed)")
 
-    contents = file.file.read()
+def save_employee_photo(file: UploadFile) -> tuple[str, Path]:
+    """
+    Sauvegarde la photo et retourne:
+    - l'URL publique (/media/employees/...)
+    - le chemin fichier sur disque (Path) pour cleanup si besoin
+    """
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise ValueError("Unsupported image type (allowed: jpg, png, webp)")
 
-    if len(contents) > MAX_IMAGE_BYTES:
-        raise ValueError("Image size exceeds 2 MB limit (max 2 MB allowed)")
+    content = file.file.read()
+    if len(content) > MAX_IMAGE_BYTES:
+        raise ValueError("Image too large (max 2MB)")
 
-    ext = ALLOWED_IMAGE_TYPE[file.content_type]
+    ext = ALLOWED_IMAGE_TYPES[file.content_type]
     filename = f"{uuid.uuid4()}{ext}"
 
-    media_dir = Path("media") / "employees"
-    media_dir.mkdir(parents=True, exist_ok=True)
-    path = media_dir / filename
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+    file_path = MEDIA_ROOT / filename
 
-    with open(path, "wb") as f:
-        f.write(contents)
+    with open(file_path, "wb") as f:
+        f.write(content)
 
-    return f"/media/employees/{filename}"
+    url = f"/media/employees/{filename}"
+    return url, file_path
+
+
+def safe_delete_file(path: Path) -> None:
+    try:
+        if path.exists():
+            path.unlink()
+    except Exception:
+        # on ne casse pas l'API si cleanup échoue
+        pass

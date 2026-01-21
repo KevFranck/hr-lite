@@ -55,8 +55,8 @@ def create_employee(
 
     #save photo
     try:
-        photo_url = save_employee_photo(photo)
-    except Exception as e:
+        photo_url, photo_path = save_employee_photo(photo)
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     # create employee
@@ -65,13 +65,16 @@ def create_employee(
             db,
             first_name=first_name.strip(),
             last_name=last_name.strip(),
-            email=email.strip(),
+            email=email.strip().lower(),
             department_id=department_id,
             position_id=position_id,
             photo_url=photo_url,
             hire_date=hire_date,
         )
     except ValueError as e:
+        # ✅ cleanup si DB échoue après upload
+        from app.utils.media import safe_delete_file
+        safe_delete_file(photo_path)
         raise HTTPException(status_code=409, detail=str(e))
 
     return emp
