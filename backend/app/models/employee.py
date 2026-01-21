@@ -25,5 +25,5 @@ class Employee(TimestampMixin, Base):
 
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="active")
 
-    departement = relationship("Department", back_populates="employees")
+    department = relationship("Department", back_populates="employees")
     position = relationship("Position", back_populates="employees")
