@@ -3,6 +3,7 @@ import Badge from "../../components/Badge";
 import { Button, Card, Input, Select } from "../../components/ui";
 import { getErrorMessage } from "../../utils/errors";
 
+import { useNavigate } from "react-router-dom";
 import { listDepartments } from "../../api/departments";
 import { listEmployees } from "../../api/employees";
 import { listPositions } from "../../api/positions";
@@ -17,6 +18,8 @@ import { mediaUrl } from "../../types/media"; // on va le créer juste après
 const DEFAULT_LIMIT = 10;
 
 export default function EmployeesPage() {
+  const navigate = useNavigate();
+
   // data
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -217,7 +220,11 @@ export default function EmployeesPage() {
               </thead>
               <tbody className="divide-y">
                 {employees.map((e) => (
-                  <tr key={e.id} className="hover:bg-gray-50">
+                  <tr
+                    key={e.id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => navigate(`/employees/${e.id}`)}
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <img
