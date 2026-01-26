@@ -1,4 +1,5 @@
 import { http } from "../lib/http";
+
 import type {
   Employee,
   EmployeeListParams,
@@ -6,34 +7,40 @@ import type {
 } from "../types/domain";
 
 export async function listEmployees(
-  params?: EmployeeListParams,
+  params: EmployeeListParams,
 ): Promise<Employee[]> {
-  const res = await http.get<Employee[]>("/employees", { params });
+  const res = await http.get("/employees", { params });
   return res.data;
 }
 
 export async function getEmployee(id: string): Promise<Employee> {
-  const res = await http.get<Employee>(`/employees/${id}`);
+  const res = await http.get(`/employees/${id}`);
   return res.data;
 }
 
-export async function createEmployee(form: FormData): Promise<Employee> {
-  const res = await http.post<Employee>("/employees", form);
+export async function createEmployee(formData: FormData): Promise<Employee> {
+  const res = await http.post("/employees", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data;
 }
 
+// ✅ PATCH /employees/{employee_id}
 export async function updateEmployee(
   id: string,
   payload: EmployeeUpdate,
 ): Promise<Employee> {
-  const res = await http.patch<Employee>(`/employees/${id}`, payload);
+  const res = await http.patch(`/employees/${id}`, payload);
   return res.data;
 }
 
+// ✅ POST /employees/{employee_id}/photo
 export async function updateEmployeePhoto(
   id: string,
-  form: FormData,
+  formData: FormData,
 ): Promise<Employee> {
-  const res = await http.post<Employee>(`/employees/${id}/photo`, form);
+  const res = await http.post(`/employees/${id}/photo`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data;
 }
